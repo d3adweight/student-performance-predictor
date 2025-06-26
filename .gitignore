@@ -28,9 +28,6 @@ ENV/
 # Logs
 *.log
 
-# Data (optional - jika tidak ingin dataset lokal ikut di-push)
-# Hapus baris ini jika dataset seperti Student_Performance.csv memang ingin disertakan
-*.csv
 
 # Cache
 *.pkl
