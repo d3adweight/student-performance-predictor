@@ -1,5 +1,6 @@
 import streamlit as st
 import seaborn as sns
+import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -46,7 +47,7 @@ def plot_predictions(df):
 
     ax.set_xlabel("Nilai Aktual", fontsize=11)
     ax.set_ylabel("Nilai Prediksi", fontsize=11)
-    ax.set_title("📈 Prediksi vs Nilai Aktual", fontsize=14)
+    ax.set_title("Prediksi vs Nilai Aktual", fontsize=14)
     ax.legend()
     ax.grid(True, linestyle="--", alpha=0.5)
 
@@ -55,5 +56,28 @@ def plot_predictions(df):
             fontsize=10,
             verticalalignment='top',
             bbox=dict(boxstyle="round", facecolor="white", alpha=0.7))
+
+    st.pyplot(fig)
+    
+def plot_user_contribution(user_input, model, feature_names):
+    user_values = user_input.values.flatten()
+    coefs = model.coef_
+    contributions = user_values * coefs
+
+    mapped_features = [FACTOR_MAPPING.get(feat, feat) for feat in feature_names]
+
+    df = pd.DataFrame({
+        'Faktor': mapped_features,
+        'Nilai Input': user_values,
+        'Koefisien Model': coefs,
+        'Kontribusi': contributions
+    }).sort_values(by='Kontribusi', ascending=False)
+
+    # Plot
+    fig, ax = plt.subplots()
+    ax.barh(df['Faktor'], df['Kontribusi'], color='salmon')
+    ax.set_xlabel("Kontribusi terhadap Prediksi")
+    ax.set_title("🔍 Faktor yang Mempengaruhi Prediksi Anda")
+    ax.invert_yaxis()
 
     st.pyplot(fig)

@@ -1,7 +1,7 @@
 import streamlit as st
 from data.load_data import load_dataset
 from utils.forms import input_form
-from utils.visualization import show_feature_correlation, plot_predictions
+from utils.visualization import show_feature_correlation, plot_user_contribution, plot_predictions
 from utils.preprocessing import encode_data
 from models.linear_model import train_and_predict
 
@@ -10,42 +10,42 @@ def main():
     st.title("🎓 Prediksi Prestasi Akademik Mahasiswa")
 
     st.markdown("---")
+    st.markdown("### 📌 Tentang Aplikasi")
     st.markdown("""
-    ### 📌 Tentang Aplikasi
-    Aplikasi ini memprediksi *Performance Index* mahasiswa berdasarkan beberapa faktor seperti kehadiran, jam belajar, dan kebiasaan belajar.
+    Aplikasi ini memprediksi *Performance Index* atau indeks prestasi akademik berdasarkan faktor-faktor seperti nilai sebelumnya, jam belajar, dan kebiasaan belajar.
 
-    📁 *Lihat dataset sumber di [Kaggle](https://www.kaggle.com/datasets/nikhil7280/student-performance-multiple-linear-regression).*
+    📁 _Sumber dataset diambil dari [Kaggle](https://www.kaggle.com/datasets/nikhil7280/student-performance-multiple-linear-regression)_.
     """)
-
-    st.markdown("---")
-    st.markdown("""
-    ### ⚙️ Tentang Model
-    Model regresi linear digunakan untuk memetakan hubungan antara faktor-faktor personal dan indeks prestasi mahasiswa.
-
-    Faktor yang dianalisis:
-    - Nilai sebelumnya
-    - Jam belajar
-    - Jam tidur
-    - Latihan soal
-    - Aktivitas ekstrakurikuler
-
-    Setiap faktor memiliki bobot kontribusi terhadap prediksi. Tabel berikut menampilkan korelasi awal berdasarkan data aktual.
-    """)
-
-    # Load dan pra-proses data
+    
+    # Load dan encode data
     df = load_dataset("assets/Student_Performance.csv")
     df_encoded = encode_data(df)
 
     st.markdown("---")
-    st.subheader("📈 Korelasi Faktor terhadap Performa")
+    st.markdown("### ⚙️ Tentang Model")
+    st.write("""
+    Model menggunakan algoritma **Regresi Linear**, yang menghitung kontribusi setiap faktor terhadap prediksi nilai akhir.
+
+    Faktor yang digunakan:
+    - Nilai sebelumnya
+    - Jam belajar
+    - Jam tidur
+    - Latihan soal
+    - Kegiatan ekstrakurikuler
+    """)
+
+    st.markdown("---")
+    st.subheader("📊 Korelasi Faktor terhadap Performa")
+    st.caption("Hubungan antara tiap faktor dengan *Performance Index* berdasarkan data historis.")
     show_feature_correlation(df_encoded)
 
     st.markdown("---")
-    st.subheader("📝 Formulir Input")
+    st.subheader("📝 Formulir Input Data Pelajar")
+    st.caption("Isi formulir berikut untuk memprediksi performa akademik Anda.")
     user_input = input_form()
 
     if user_input is not None:
-        prediction, mse, r2 = train_and_predict(df_encoded, user_input)
+        prediction, mse, r2, model = train_and_predict(df_encoded, user_input)
 
         # Kategorisasi
         q1 = df['Performance Index'].quantile(0.25)
@@ -82,14 +82,17 @@ def main():
         Kategori dibentuk berdasarkan distribusi kuartil dari data.
         """)
 
+        st.markdown("---")
         st.subheader("🧠 Analisis")
         st.write(narasi)
 
-        # Evaluasi dan visualisasi model
+        # Evaluasi dan visualisasi
+        st.markdown("\n")
         with st.expander("📏 Evaluasi Model & Visualisasi"):
             st.write(f"- **Mean Squared Error (MSE)**: `{mse:.4f}`")
             st.write(f"- **R-squared (R²)**: `{r2:.4f}`")
             plot_predictions(df_encoded)
+            plot_user_contribution(user_input, model, df_encoded.drop(columns='Performance Index').columns)
 
 if __name__ == "__main__":
     main()
