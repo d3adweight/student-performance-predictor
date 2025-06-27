@@ -6,8 +6,8 @@ from utils.preprocessing import encode_data
 from models.linear_model import train_and_predict
 
 def main():
-    st.set_page_config(page_title="Prediksi Prestasi Mahasiswa", layout="centered")
-    st.title("🎓 Prediksi Prestasi Akademik Mahasiswa")
+    st.set_page_config(page_title="Prediksi Prestasi Pelajar", layout="centered")
+    st.title("🎓 Prediksi Prestasi Akademik Pelajar")
 
     st.markdown("---")
     st.markdown("### 📌 Tentang Aplikasi")
