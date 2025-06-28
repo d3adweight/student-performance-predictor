@@ -1,7 +1,7 @@
 import streamlit as st
 from data.load_data import load_dataset
 from utils.forms import input_form
-from utils.visualization import show_feature_correlation, plot_user_contribution, plot_predictions
+from utils.visualization import show_correlation_and_coefficients, plot_user_contribution, plot_predictions
 from utils.preprocessing import encode_data
 from models.linear_model import train_and_predict
 
@@ -39,7 +39,7 @@ def main():
     """)
 
     st.markdown("---")
-    show_feature_correlation(df_encoded)
+    show_correlation_and_coefficients(df_encoded)
 
     st.markdown("---")
     user_input = input_form()

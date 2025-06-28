@@ -16,20 +16,32 @@ FACTOR_MAPPING = {
     "Extracurricular Activities": "Kegiatan Ekstrakurikuler"
 }
 
-def show_feature_correlation(df):
-    st.subheader("📊 Korelasi Faktor terhadap Performa Akademik")
-    st.caption("Tabel berikut menunjukkan seberapa kuat hubungan tiap faktor dengan nilai *Performance Index* berdasarkan data historis.")
-    
+def show_correlation_and_coefficients(df):
+    st.subheader("📊 Korelasi dan Koefisien Faktor terhadap Performa Akademik")
+    st.caption("""
+    Tabel berikut menampilkan nilai **korelasi** dari masing-masing faktor terhadap *Performance Index* (berdasarkan analisis data historis),
+    serta **koefisien regresi** yang dihasilkan dari model *Linear Regression* yang dilatih pada dataset.
+    """)
+
     corr = df.corr(numeric_only=True)['Performance Index'].drop('Performance Index')
-    corr_sorted = corr.sort_values(key=lambda x: abs(x), ascending=False)
 
-    df_korelasi = corr_sorted.reset_index().rename(columns={
-        'index': 'Faktor',
-        'Performance Index': 'Korelasi'
-    })
-    df_korelasi['Faktor'] = df_korelasi['Faktor'].map(FACTOR_MAPPING).fillna(df_korelasi['Faktor'])
+    X = df.drop(columns='Performance Index')
+    y = df['Performance Index']
+    model = LinearRegression()
+    model.fit(X, y)
+    coefs = pd.Series(model.coef_, index=X.columns)
+    
+    df_compare = pd.DataFrame({
+        'Faktor': X.columns,
+        'Korelasi': corr,
+        'Koefisien': coefs
+    }).sort_values(by='Korelasi', key=lambda x: abs(x), ascending=False)
 
-    st.dataframe(df_korelasi, use_container_width=True)
+    df_compare['Faktor'] = df_compare['Faktor'].map(FACTOR_MAPPING).fillna(df_compare['Faktor'])
+
+    df_compare = df_compare.reset_index(drop=True)
+    st.dataframe(df_compare.style.format({'Korelasi': '{:.3f}', 'Koefisien': '{:.3f}'}), use_container_width=True)
+
 
 def plot_predictions(df):
     X = df.drop(columns='Performance Index')
