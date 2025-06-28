@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 
 def input_form():
+    st.subheader("📝 Formulir Input Data Pelajar")
+    st.caption("Isi formulir di bawah ini untuk mengetahui prediksi tingkat performa akademik berdasarkan data pribadi Anda.")
+    
     with st.form("student_form"):
         hours = st.slider("Jam Belajar per Hari", 0, 10, 5)
         prev_score = st.slider("Nilai Sebelumnya (0–100)", 0, 100, 70)

@@ -6,17 +6,19 @@ from utils.preprocessing import encode_data
 from models.linear_model import train_and_predict
 
 def main():
-    st.set_page_config(page_title="Prediksi Prestasi Pelajar", layout="centered")
-    st.title("🎓 Prediksi Prestasi Akademik Pelajar")
+    st.set_page_config(page_title="Prediksi Tingkat Performa Pelajar", layout="centered")
+    st.title("📚 Prediksi Tingkat Performa Akademik Pelajar")
 
     st.markdown("---")
     st.markdown("### 📌 Tentang Aplikasi")
     st.markdown("""
-    Aplikasi ini memprediksi *Performance Index* atau indeks prestasi akademik berdasarkan faktor-faktor seperti nilai sebelumnya, jam belajar, dan kebiasaan belajar.
+    Aplikasi ini dirancang untuk membantu memprediksi **tingkat performa akademik pelajar** berdasarkan sejumlah faktor penting yang memengaruhi hasil belajar.
 
-    📁 _Sumber dataset diambil dari [Kaggle](https://www.kaggle.com/datasets/nikhil7280/student-performance-multiple-linear-regression)_.
+    Dengan memasukkan data seperti **nilai sebelumnya**, **jam belajar**, hingga **aktivitas ekstrakurikuler**, aplikasi ini akan menghitung dan menampilkan prediksi performa secara interaktif.
+
+    📁 _Dataset bersumber dari [Kaggle](https://www.kaggle.com/datasets/nikhil7280/student-performance-multiple-linear-regression)_.
     """)
-    
+
     # Load dan encode data
     df = load_dataset("assets/Student_Performance.csv")
     df_encoded = encode_data(df)
@@ -24,24 +26,22 @@ def main():
     st.markdown("---")
     st.markdown("### ⚙️ Tentang Model")
     st.write("""
-    Model menggunakan algoritma **Regresi Linear**, yang menghitung kontribusi setiap faktor terhadap prediksi nilai akhir.
+    Aplikasi ini menggunakan algoritma **Regresi Linear**, yang mampu memetakan hubungan antara faktor-faktor belajar dengan hasil performa akhir pelajar.
 
-    Faktor yang digunakan:
-    - Nilai sebelumnya
-    - Jam belajar
-    - Jam tidur
-    - Latihan soal
-    - Kegiatan ekstrakurikuler
+    Faktor yang dipertimbangkan meliputi:
+    - Nilai akademik sebelumnya
+    - Jam belajar per minggu
+    - Durasi tidur harian
+    - Frekuensi latihan soal
+    - Keterlibatan dalam kegiatan ekstrakurikuler
+
+    Setiap faktor dianalisis untuk mengetahui seberapa besar pengaruhnya terhadap prediksi performa.
     """)
 
     st.markdown("---")
-    st.subheader("📊 Korelasi Faktor terhadap Performa")
-    st.caption("Hubungan antara tiap faktor dengan *Performance Index* berdasarkan data historis.")
     show_feature_correlation(df_encoded)
 
     st.markdown("---")
-    st.subheader("📝 Formulir Input Data Pelajar")
-    st.caption("Isi formulir berikut untuk memprediksi performa akademik Anda.")
     user_input = input_form()
 
     if user_input is not None:
@@ -53,42 +53,41 @@ def main():
 
         if prediction > q3:
             kategori = "Tinggi"
-            narasi = "Prestasi akademik tergolong **tinggi**. Pertahankan konsistensi dan terus eksplorasi materi lanjut."
+            narasi = "Performa akademik Anda tergolong **tinggi**. Pertahankan semangat belajar dan terus kembangkan kemampuan!"
         elif prediction >= q1:
             kategori = "Sedang"
-            narasi = "Prestasi akademik tergolong **sedang**. Disarankan untuk meningkatkan jam belajar dan memperbanyak latihan soal."
+            narasi = "Performa akademik Anda berada di tingkat **sedang**. Perlu sedikit peningkatan fokus dan manajemen waktu belajar."
         else:
             kategori = "Rendah"
-            narasi = "Prestasi akademik tergolong **rendah**. Perlu perhatian serius. Coba atur ulang strategi belajar dan minta bantuan akademik jika perlu."
+            narasi = "Performa akademik Anda tergolong **rendah**. Disarankan untuk meninjau kembali kebiasaan belajar dan mencari dukungan akademik jika diperlukan."
 
         # Output
-        st.subheader("📊 Hasil Prediksi")
-        st.metric("Prediksi Performance Index", f"{prediction:.2f}")
+        st.subheader("📈 Hasil Prediksi")
+        st.metric("Performa Akademik Diprediksi", f"{prediction:.2f}")
 
         if kategori == "Tinggi":
-            st.success(f"Tingkat Prestasi: {kategori}")
+            st.success(f"Tingkat Performa: {kategori}")
         elif kategori == "Sedang":
-            st.warning(f"Tingkat Prestasi: {kategori}")
+            st.warning(f"Tingkat Performa: {kategori}")
         else:
-            st.error(f"Tingkat Prestasi: {kategori}")
+            st.error(f"Tingkat Performa: {kategori}")
 
         st.markdown("---")
         st.markdown(f"""
-        #### ℹ️ Penjelasan Kategori
+        #### ℹ️ Kategori Performa
         - **Tinggi**: > {q3:.0f}
         - **Sedang**: {q1:.0f} – {q3:.0f}
         - **Rendah**: < {q1:.0f}
 
-        Kategori dibentuk berdasarkan distribusi kuartil dari data.
+        Kategori ini didasarkan pada distribusi kuartil dari data aktual pelajar.
         """)
 
         st.markdown("---")
-        st.subheader("🧠 Analisis")
+        st.subheader("🧠 Analisis Hasil")
         st.write(narasi)
 
-        # Evaluasi dan visualisasi
         st.markdown("\n")
-        with st.expander("📏 Evaluasi Model & Visualisasi"):
+        with st.expander("📏 Evaluasi Model & Visualisasi Tambahan"):
             st.write(f"- **Mean Squared Error (MSE)**: `{mse:.4f}`")
             st.write(f"- **R-squared (R²)**: `{r2:.4f}`")
             plot_predictions(df_encoded)

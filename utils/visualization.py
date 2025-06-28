@@ -7,16 +7,19 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 
-# Constants
+# Constant
 FACTOR_MAPPING = {
     "Previous Scores": "Nilai Sebelumnya",
     "Hours Studied": "Jam Belajar",
-    "Sleep Hours": "Jam Tidur", 
+    "Sleep Hours": "Jam Tidur",
     "Sample Question Papers Practiced": "Latihan Soal Ujian",
     "Extracurricular Activities": "Kegiatan Ekstrakurikuler"
 }
 
 def show_feature_correlation(df):
+    st.subheader("📊 Korelasi Faktor terhadap Performa Akademik")
+    st.caption("Tabel berikut menunjukkan seberapa kuat hubungan tiap faktor dengan nilai *Performance Index* berdasarkan data historis.")
+    
     corr = df.corr(numeric_only=True)['Performance Index'].drop('Performance Index')
     corr_sorted = corr.sort_values(key=lambda x: abs(x), ascending=False)
 
@@ -27,7 +30,7 @@ def show_feature_correlation(df):
     df_korelasi['Faktor'] = df_korelasi['Faktor'].map(FACTOR_MAPPING).fillna(df_korelasi['Faktor'])
 
     st.dataframe(df_korelasi, use_container_width=True)
-    
+
 def plot_predictions(df):
     X = df.drop(columns='Performance Index')
     y = df['Performance Index']
@@ -40,12 +43,11 @@ def plot_predictions(df):
     mse = mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
 
-    # Create plot
     fig, ax = plt.subplots(figsize=(6, 6))
     sns.scatterplot(x=y_test, y=y_pred, ax=ax, alpha=0.7, s=60, color="#4C72B0", edgecolor="white")
-    ax.plot([y.min(), y.max()], [y.min(), y.max()], 'r--', label='y = x (perfect prediction)')
+    ax.plot([y.min(), y.max()], [y.min(), y.max()], 'r--', label='y = x (prediksi sempurna)')
 
-    ax.set_xlabel("Nilai Aktual", fontsize=11)
+    ax.set_xlabel("Nilai Aktual (Ground Truth)", fontsize=11)
     ax.set_ylabel("Nilai Prediksi", fontsize=11)
     ax.set_title("Prediksi vs Nilai Aktual", fontsize=14)
     ax.legend()
@@ -58,7 +60,7 @@ def plot_predictions(df):
             bbox=dict(boxstyle="round", facecolor="white", alpha=0.7))
 
     st.pyplot(fig)
-    
+
 def plot_user_contribution(user_input, model, feature_names):
     user_values = user_input.values.flatten()
     coefs = model.coef_
@@ -73,11 +75,11 @@ def plot_user_contribution(user_input, model, feature_names):
         'Kontribusi': contributions
     }).sort_values(by='Kontribusi', ascending=False)
 
-    # Plot
     fig, ax = plt.subplots()
-    ax.barh(df['Faktor'], df['Kontribusi'], color='salmon')
-    ax.set_xlabel("Kontribusi terhadap Prediksi")
-    ax.set_title("🔍 Faktor yang Mempengaruhi Prediksi Anda")
+    ax.barh(df['Faktor'], df['Kontribusi'], color='skyblue')
+    ax.set_xlabel("Kontribusi terhadap Nilai Prediksi")
+    ax.set_title("Faktor yang Paling Mempengaruhi Performa Anda")
     ax.invert_yaxis()
+    ax.grid(axis='x', linestyle="--", alpha=0.5)
 
     st.pyplot(fig)
